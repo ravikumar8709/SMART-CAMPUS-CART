@@ -1,104 +1,100 @@
-
 'use client';
 
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { signInWithGoogle } from '@/lib/auth';
-import { useToast } from '@/hooks/use-toast';
+import { Separator } from '@/components/ui/separator';
+import { useAuth } from '@/contexts/auth-provider';
+import { signOut } from '@/lib/auth';
+import { CreditCard, History, LogOut, User as UserIcon } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
-const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" {...props}>
-    <title>Google</title>
-    <path d="M12.48 10.92v3.28h7.84c-.24 1.84-.85 3.18-1.73 4.1-1.02 1.02-2.6 1.62-4.58 1.62-3.87 0-7-3.13-7-7s3.13-7 7-7c1.73 0 3.3.62 4.54 1.8l2.5-2.5C18.04 3.24 15.48 2 12.48 2c-5.52 0-10 4.48-10 10s4.48 10 10 10c5.52 0 10-4.48 10-10 0-1.28-.15-2.54-.4-3.72h-9.6z" />
-  </svg>
-);
+export default function AccountPage() {
+  const { user } = useAuth();
+  const router = useRouter();
 
-export default function LoginPage() {
-  const { toast } = useToast();
-
-  const handleGoogleSignIn = async () => {
-    try {
-        // This will start the redirect flow. The user will be sent away and then
-        // back to the app. The AuthProvider will handle the redirect result.
-        await signInWithGoogle();
-    } catch (error) {
-        console.error("Sign-in failed", error);
-        toast({
-            variant: 'destructive',
-            title: 'Sign In Failed',
-            description: 'Could not initiate sign-in with Google. Please try again.',
-        });
-    }
+  const handleSignOut = async () => {
+    await signOut();
+    router.push('/');
   };
 
+  if (!user) {
+    // Optionally, redirect to login if no user is signed in.
+    // Or show a message.
+    return (
+      <div className="container mx-auto max-w-3xl px-4 py-8 text-center">
+        <p>You must be logged in to view this page.</p>
+        <Button asChild className="mt-4">
+          <Link href="/login">Login</Link>
+        </Button>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex items-center justify-center min-h-[calc(100vh-10rem)] py-12 px-4">
-      <Card className="w-full max-w-md glass-card">
-        <Tabs defaultValue="signin" className="w-full">
-          <CardHeader className="text-center pb-4">
-             <CardTitle className="text-3xl font-bold font-headline">Welcome Back</CardTitle>
-            <CardDescription>Select a method to sign in to your account</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <Button variant="outline" className="w-full text-base py-6" onClick={handleGoogleSignIn}>
-              <GoogleIcon className="mr-3 h-5 w-5" />
-              Sign in with Google
-            </Button>
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
-              </div>
-            </div>
-             <TabsList className="grid w-full grid-cols-2 h-12">
-                <TabsTrigger value="signin" className="text-base">Sign In</TabsTrigger>
-                <TabsTrigger value="signup" className="text-base">Sign Up</TabsTrigger>
-            </TabsList>
-            <TabsContent value="signin" className="space-y-4 m-0">
-              <div className="space-y-2">
-                <Label htmlFor="email-signin">Email</Label>
-                <Input id="email-signin" type="email" placeholder="m@example.com" required />
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center">
-                  <Label htmlFor="password-signin">Password</Label>
-                  <Link href="#" className="ml-auto inline-block text-sm underline">
-                    Forgot your password?
-                  </Link>
-                </div>
-                <Input id="password-signin" type="password" required />
-              </div>
-              <Button type="submit" className="w-full text-base py-6">
-                Sign In
-              </Button>
-            </TabsContent>
-            <TabsContent value="signup" className="space-y-4 m-0">
-              <div className="space-y-2">
-                <Label htmlFor="name-signup">Full Name</Label>
-                <Input id="name-signup" placeholder="Alex Doe" required />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="email-signup">Email</Label>
-                <Input id="email-signup" type="email" placeholder="m@example.com" required />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="password-signup">Password</Label>
-                <Input id="password-signup" type="password" required />
-              </div>
-              <Button type="submit" className="w-full text-base py-6">
-                Create Account
-              </Button>
-            </TabsContent>
-          </CardContent>
-        </Tabs>
+    <div className="container mx-auto max-w-3xl px-4 py-8">
+      <div className="flex items-center mb-8">
+        <UserIcon className="w-8 h-8 text-primary mr-3" />
+        <h1 className="text-3xl font-bold font-headline">My Account</h1>
+      </div>
+
+      <Card className="mb-8 glass-card">
+        <CardHeader className="flex flex-row items-center gap-4">
+          <Avatar className="h-20 w-20">
+            <AvatarFallback>{user.displayName?.charAt(0)}</AvatarFallback>
+          </Avatar>
+          <div>
+            <CardTitle className="text-2xl font-headline">{user.displayName}</CardTitle>
+            <CardDescription>{user.email}</CardDescription>
+          </div>
+        </CardHeader>
       </Card>
+      
+      <div className="space-y-8">
+        <Card className="glass-card">
+          <CardHeader>
+            <CardTitle className="text-xl font-headline flex items-center">
+              <CreditCard className="w-5 h-5 mr-3 text-primary" />
+              Payment Methods
+            </CardTitle>
+            <CardDescription>Manage your saved payment methods.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between p-4 border rounded-md">
+              <div>
+                <p className="font-medium">Visa ending in 1234</p>
+                <p className="text-sm text-muted-foreground">Expires 12/2025</p>
+              </div>
+              <Button variant="outline">Edit</Button>
+            </div>
+             <Button variant="secondary" className="mt-4 w-full">Add New Payment Method</Button>
+          </CardContent>
+        </Card>
+
+        <Card className="glass-card">
+            <CardHeader>
+                <CardTitle className="text-xl font-headline flex items-center">
+                    <History className="w-5 h-5 mr-3 text-primary"/>
+                    Order History
+                </CardTitle>
+                <CardDescription>View your past transactions and receipts.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <Button asChild className="w-full">
+                    <Link href="/history">View Transaction History</Link>
+                </Button>
+            </CardContent>
+        </Card>
+
+        <Separator />
+        
+        <Button variant="destructive" className="w-full" onClick={handleSignOut}>
+            <LogOut className="w-4 h-4 mr-2" />
+            Log Out
+        </Button>
+      </div>
+
     </div>
   );
 }

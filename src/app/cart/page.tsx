@@ -1,33 +1,70 @@
-
 'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { ArrowLeft, CreditCard, ShoppingBag, Loader2, Nfc } from 'lucide-react';
 
 import QuantitySelector from '@/components/quantity-selector';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { useCart } from '@/contexts/cart-provider';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, CreditCard, ShoppingBag } from 'lucide-react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { getStudentProfile } from '@/ai/flows/student-profile-flow';
+import NfcScan from '@/components/nfc-scan';
 
 export default function CartPage() {
   const { state, dispatch } = useCart();
   const router = useRouter();
   const { toast } = useToast();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const subtotal = state.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const tax = subtotal * 0.08; // 8% tax
   const total = subtotal + tax;
 
-  const handleConfirmPurchase = () => {
-    // In a real app, this would trigger a payment flow and update the backend.
-    dispatch({ type: 'CLEAR_CART' });
-    toast({
-      title: 'Purchase Successful!',
-      description: 'Your order has been placed. Check your history for the receipt.',
-    });
-    router.push('/history');
+  const handleScanSuccess = async (scanResult: string) => {
+    setIsProcessing(true);
+
+    try {
+      const student = await getStudentProfile(scanResult);
+
+      if (student) {
+        // In a real app, this would also trigger a payment flow with the backend.
+        dispatch({ type: 'CLEAR_CART' });
+        toast({
+          title: 'Purchase Successful!',
+          description: `Payment for ${student.name} complete. Check your history for the receipt.`,
+        });
+        setIsDialogOpen(false);
+        router.push('/history');
+      } else {
+        toast({
+          variant: 'destructive',
+          title: 'Invalid Student ID',
+          description: `The scanned ID (${scanResult}) is not a valid student ID. Please try again.`,
+        });
+      }
+    } catch (error) {
+      console.error("Error verifying student ID:", error);
+      toast({
+        variant: 'destructive',
+        title: 'Verification Failed',
+        description: 'An error occurred while trying to verify the student ID.',
+      });
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   if (state.items.length === 0) {
@@ -107,9 +144,31 @@ export default function CartPage() {
                     <Button variant="link" size="sm" asChild><Link href="/account">Change</Link></Button>
                 </div>
               </div>
-              <Button size="lg" className="w-full mt-4" onClick={handleConfirmPurchase}>
-                Confirm Purchase
-              </Button>
+
+              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button size="lg" className="w-full mt-4">
+                    <Nfc className="mr-2 h-5 w-5" />
+                    Pay with Student ID
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="glass-card">
+                  <DialogHeader>
+                    <DialogTitle>Tap ID to Pay</DialogTitle>
+                    <DialogDescription>
+                      Hold your student ID card near your device. Your cart total of ₹{total.toFixed(2)} will be charged.
+                    </DialogDescription>
+                  </DialogHeader>
+                  {isProcessing ? (
+                    <div className="flex flex-col items-center justify-center gap-4 py-8">
+                      <Loader2 className="w-12 h-12 animate-spin text-primary" />
+                      <p className="text-muted-foreground">Verifying Student ID...</p>
+                    </div>
+                  ) : (
+                    <NfcScan onScanSuccess={handleScanSuccess} />
+                  )}
+                </DialogContent>
+              </Dialog>
             </CardContent>
           </Card>
         </div>
