@@ -59,7 +59,7 @@ export default function NfcScan({ onScanSuccess }: { onScanSuccess?: (result: st
         const decoder = new TextDecoder();
         // Assuming the first record contains the student ID
         const firstRecord = message.records[0];
-        const studentId = decoder.decode(firstRecord.data);
+        const studentId = decoder.decode(firstRecord.data).trim();
         
         playBeep(true);
         setScanResult(studentId);

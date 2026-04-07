@@ -10,8 +10,7 @@ import { vendors, transactions } from '@/lib/data';
 import type { Product, Student, Transaction } from '@/lib/types';
 import { useCart } from '@/contexts/cart-provider';
 import { useToast } from '@/hooks/use-toast';
-import { getStudentProfile } from '@/ai/flows/student-profile-flow';
-import { updateStudentBalance } from '@/lib/student-db';
+import { getStudentById, updateStudentBalance } from '@/lib/student-db';
 import NfcScan from '@/components/nfc-scan';
 import QuantitySelector from '@/components/quantity-selector';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -41,10 +40,10 @@ const Checkout = () => {
     const tax = subtotal * 0.08; // 8% tax
     const total = subtotal + tax;
 
-    const handleScanSuccess = async (scanResult: string) => {
+    const handleScanSuccess = (scanResult: string) => {
         setIsProcessing(true);
         try {
-            const student = await getStudentProfile(scanResult);
+            const student = getStudentById(scanResult);
 
             if (!student) {
                 toast({
