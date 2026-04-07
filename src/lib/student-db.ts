@@ -29,6 +29,11 @@ const MOCK_STUDENTS: Student[] = [
     name: 'Akash mishra',
     email: '9922005079@klu.ac.in',
   },
+  {
+    id: '99220041923',
+    name: 'Abhijeet kumar',
+    email: '99220041023@klu.ac.in',
+  },
 
 ];
 
