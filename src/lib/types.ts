@@ -1,5 +1,13 @@
 import { z } from 'zod';
 
+export type Role = 'Student' | 'Vendor' | 'Admin' | null;
+
+export interface MockUser {
+    email: string;
+    displayName: string;
+    role: Role;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -28,14 +36,13 @@ export interface Transaction {
     price: number;
   }[];
   total: number;
-  studentId?: string;
-  studentName?: string;
 }
 
 export interface Student {
   id: string;
   name: string;
   email: string;
+  walletBalance: number;
 }
 
 // Types for the student profile flow
@@ -46,5 +53,6 @@ export const StudentProfileOutputSchema = z.object({
   id: z.string(),
   name: z.string(),
   email: z.string(),
+  walletBalance: z.number(),
 }).nullable();
 export type StudentProfileOutput = z.infer<typeof StudentProfileOutputSchema>;

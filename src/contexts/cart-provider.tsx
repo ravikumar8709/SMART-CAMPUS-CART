@@ -1,19 +1,17 @@
 "use client";
 
-import type { CartItem, Product, Transaction } from '@/lib/types';
+import type { CartItem, Product } from '@/lib/types';
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
 
 type CartState = {
   items: CartItem[];
-  transactions: Transaction[];
 };
 
 type CartAction =
   | { type: 'ADD_TO_CART'; payload: Product }
   | { type: 'UPDATE_QUANTITY'; payload: { productId: string; quantity: number } }
   | { type: 'REMOVE_FROM_CART'; payload: { productId: string } }
-  | { type: 'CLEAR_CART' }
-  | { type: 'ADD_TRANSACTION'; payload: Transaction };
+  | { type: 'CLEAR_CART' };
 
 const CartContext = createContext<{
   state: CartState;
@@ -58,18 +56,13 @@ function cartReducer(state: CartState, action: CartAction): CartState {
     }
     case 'CLEAR_CART':
       return { ...state, items: [] };
-    case 'ADD_TRANSACTION':
-      return {
-        ...state,
-        transactions: [action.payload, ...state.transactions],
-      };
     default:
       return state;
   }
 }
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
-  const [state, dispatch] = useReducer(cartReducer, { items: [], transactions: [] });
+  const [state, dispatch] = useReducer(cartReducer, { items: [] });
 
   return (
     <CartContext.Provider value={{ state, dispatch }}>

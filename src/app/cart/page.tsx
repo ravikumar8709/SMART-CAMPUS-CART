@@ -21,6 +21,10 @@ import { useCart } from '@/contexts/cart-provider';
 import { useToast } from '@/hooks/use-toast';
 import { getStudentProfile } from '@/ai/flows/student-profile-flow';
 import NfcScan from '@/components/nfc-scan';
+import { updateStudentBalance } from '@/lib/student-db';
+import { transactions } from '@/lib/data';
+import { vendors } from '@/lib/data';
+
 
 export default function CartPage() {
   const { state, dispatch } = useCart();
@@ -39,28 +43,65 @@ export default function CartPage() {
     try {
       const student = await getStudentProfile(scanResult);
 
-      if (student) {
-        // In a real app, this would also trigger a payment flow with the backend.
-        dispatch({ type: 'CLEAR_CART' });
-        toast({
-          title: 'Purchase Successful!',
-          description: `Payment for ${student.name} complete. Check your history for the receipt.`,
-        });
-        setIsDialogOpen(false);
-        router.push('/history');
-      } else {
+      if (!student) {
         toast({
           variant: 'destructive',
           title: 'Invalid Student ID',
           description: `The scanned ID (${scanResult}) is not a valid student ID. Please try again.`,
         });
+        return;
       }
+      
+      if (student.walletBalance < total) {
+        toast({
+            variant: 'destructive',
+            title: 'Insufficient Balance',
+            description: `Your wallet balance is ₹${student.walletBalance.toFixed(2)}. Please recharge your wallet.`,
+        });
+        return;
+      }
+
+      // 1. Deduct balance from mock DB
+      updateStudentBalance(student.id, student.walletBalance - total);
+
+      // 2. Find vendor name from the first item in cart
+      const vendorId = vendors.find(v => v.products.some(p => p.id === state.items[0]?.id))?.id;
+      const vendor = vendors.find(v => v.id === vendorId);
+
+      // 3. Create a new transaction record
+      const newTransaction = {
+        id: `t${Date.now()}`,
+        vendorName: vendor?.name || 'Unknown Vendor',
+        date: new Date().toISOString(),
+        items: state.items.map(item => ({
+            name: item.name,
+            quantity: item.quantity,
+            price: item.price
+        })),
+        total: total,
+      };
+
+      // 4. Add to transaction history (in-memory)
+      transactions.unshift(newTransaction);
+      
+      // 5. Clear cart
+      dispatch({ type: 'CLEAR_CART' });
+      
+      // 6. Notify user and redirect
+      toast({
+        title: 'Purchase Successful!',
+        description: `₹${total.toFixed(2)} has been deducted from your wallet.`,
+      });
+
+      setIsDialogOpen(false);
+      router.push('/history');
+
     } catch (error) {
-      console.error("Error verifying student ID:", error);
+      console.error("Error during purchase:", error);
       toast({
         variant: 'destructive',
-        title: 'Verification Failed',
-        description: 'An error occurred while trying to verify the student ID.',
+        title: 'Purchase Failed',
+        description: 'An error occurred while trying to complete the purchase.',
       });
     } finally {
       setIsProcessing(false);
@@ -134,17 +175,7 @@ export default function CartPage() {
                 <span>₹{total.toFixed(2)}</span>
               </div>
               <Separator />
-              <div className="pt-2">
-                <p className="font-semibold mb-2">Pay with</p>
-                <div className="flex items-center p-3 border rounded-md bg-muted/50">
-                    <CreditCard className="h-6 w-6 mr-3 text-muted-foreground"/>
-                    <div className="flex-1">
-                        <p className="font-medium text-sm">Visa ending in 1234</p>
-                    </div>
-                    <Button variant="link" size="sm" asChild><Link href="/account">Change</Link></Button>
-                </div>
-              </div>
-
+              
               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogTrigger asChild>
                   <Button size="lg" className="w-full mt-4">
@@ -156,13 +187,13 @@ export default function CartPage() {
                   <DialogHeader>
                     <DialogTitle>Tap ID to Pay</DialogTitle>
                     <DialogDescription>
-                      Hold your student ID card near your device. Your cart total of ₹{total.toFixed(2)} will be charged.
+                      Hold your student ID card near your device. Your cart total of ₹{total.toFixed(2)} will be charged to your wallet.
                     </DialogDescription>
                   </DialogHeader>
                   {isProcessing ? (
                     <div className="flex flex-col items-center justify-center gap-4 py-8">
                       <Loader2 className="w-12 h-12 animate-spin text-primary" />
-                      <p className="text-muted-foreground">Verifying Student ID...</p>
+                      <p className="text-muted-foreground">Processing Purchase...</p>
                     </div>
                   ) : (
                     <NfcScan onScanSuccess={handleScanSuccess} />

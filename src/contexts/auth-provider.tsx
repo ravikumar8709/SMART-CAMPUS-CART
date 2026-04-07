@@ -1,62 +1,110 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { onAuthStateChanged, User } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
 import { Skeleton } from '@/components/ui/skeleton';
 import { usePathname, useRouter } from 'next/navigation';
+import type { Role, MockUser } from '@/lib/types';
+import { getSession } from '@/lib/auth';
 
 interface AuthContextType {
-  user: User | null;
+  user: MockUser | null;
+  role: Role | null;
   loading: boolean;
+  refreshSession: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<MockUser | null>(null);
+  const [role, setRole] = useState<Role | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-      setLoading(false);
-    });
+  const refreshSession = () => {
+    const sessionUser = getSession();
+    setUser(sessionUser);
+    setRole(sessionUser?.role || null);
+    setLoading(false);
+  };
 
-    return () => unsubscribe();
+  useEffect(() => {
+    refreshSession();
   }, []);
 
   useEffect(() => {
-    // This effect handles redirecting the user after login.
-    // If the page is not loading, we have a user, and they are on the login page,
-    // we redirect them to the home page.
-    if (!loading && user && pathname === '/login') {
-      router.push('/');
-    }
-  }, [user, loading, pathname, router]);
+    if (loading) return;
 
+    const isStudentRoute = pathname.startsWith('/student');
+    const isVendorRoute = pathname.startsWith('/vendor');
+    const isAdminRoute = pathname.startsWith('/admin');
+    const isStudentLogin = pathname === '/student/login';
+    const isVendorLogin = pathname === '/vendor/login';
+    const isAdminLogin = pathname === '/admin/login';
+    
+    // If not logged in, redirect protected routes to their respective login pages
+    if (!user) {
+      if (isVendorRoute && !isVendorLogin) {
+        router.push('/vendor/login');
+        return;
+      }
+      if (isAdminRoute && !isAdminLogin) {
+        router.push('/admin/login');
+        return;
+      }
+      if (isStudentRoute && !isStudentLogin) {
+        router.push('/student/login');
+        return;
+      }
+      return;
+    }
+    
+    // If logged in, handle redirects
+    if (user) {
+      // Redirect from login pages if already logged in
+      if (isStudentLogin && role === 'Student') {
+          router.push('/student/dashboard');
+          return;
+      }
+      if (isVendorLogin && role === 'Vendor') {
+          router.push('/vendor/dashboard');
+          return;
+      }
+      if (isAdminLogin && role === 'Admin') {
+          router.push('/admin/dashboard');
+          return;
+      }
+
+      // Enforce role-based access
+      if (role === 'Student' && (isAdminRoute || isVendorRoute)) {
+        router.push('/student/dashboard');
+      } else if (role === 'Vendor' && (isAdminRoute || isStudentRoute)) {
+        router.push('/vendor/dashboard');
+      } else if (role === 'Admin' && (isVendorRoute || isStudentRoute)) {
+        router.push('/admin/dashboard');
+      }
+    }
+
+  }, [user, role, loading, pathname, router]);
 
   if (loading) {
     return (
-        <div className="w-full h-screen flex items-center justify-center">
-            <div className="flex flex-col items-center gap-4">
-                <Skeleton className="h-12 w-12 rounded-full" />
-                <div className="space-y-2">
-                    <Skeleton className="h-4 w-[250px]" />
-                    <Skeleton className="h-4 w-[200px]" />
-                </div>
-            </div>
+      <div className="w-full h-screen flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Skeleton className="h-12 w-12 rounded-full" />
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-[250px]" />
+            <Skeleton className="h-4 w-[200px]" />
+          </div>
+        </div>
       </div>
     );
   }
 
-  return (
-    <AuthContext.Provider value={{ user, loading }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  const value = { user, role, loading, refreshSession };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => {

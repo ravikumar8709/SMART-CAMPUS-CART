@@ -1,5 +1,6 @@
-
 import type { Vendor, Transaction, Product } from './types';
+
+export const ADMIN_EMAIL = 'admin@campustcart.com';
 
 export const vendors: Vendor[] = [
   {
@@ -62,38 +63,8 @@ export const vendors: Vendor[] = [
   },
 ];
 
-export const transactions: Transaction[] = [
-  {
-    id: 't1',
-    vendorName: 'Bombay Chaatwala',
-    date: '2024-05-20',
-    items: [
-      { name: 'Pani Puri', quantity: 1, price: 5.00 },
-      { name: 'Chai Tea', quantity: 1, price: 2.50 },
-    ],
-    total: 7.50,
-  },
-  {
-    id: 't2',
-    vendorName: 'Samosa Spot',
-    date: '2024-05-18',
-    items: [
-      { name: 'Vegetable Samosa', quantity: 2, price: 2.00 },
-      { name: 'Mango Lassi', quantity: 1, price: 4.00 },
-    ],
-    total: 8.00,
-  },
-  {
-    id: 't3',
-    vendorName: 'Lee Corner',
-    date: '2024-05-15',
-    items: [
-      { name: 'Energy Drink', quantity: 2, price: 3.50 },
-      { name: 'Protein Bar', quantity: 1, price: 2.75 },
-    ],
-    total: 9.75,
-  },
-];
+// This is now a `let` to allow it to be mutated (new transactions added).
+export let transactions: Transaction[] = [];
 
 export const user = {
     name: 'Alex Doe',
