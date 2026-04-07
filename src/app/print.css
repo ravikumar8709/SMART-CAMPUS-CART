@@ -1,0 +1,28 @@
+
+@media print {
+  body {
+    background-color: white;
+  }
+  
+  /* Hide everything by default */
+  body > * {
+    display: none !important;
+  }
+
+  /*
+    The react-to-print library works by cloning the component you want to print
+    and appending it to the body. So, we make sure that cloned element
+    and its children are visible.
+  */
+  body > div[data-rc-print-content="true"] {
+    display: block !important;
+  }
+   body > div[data-rc-print-content="true"] * {
+    display: initial !important; /* or block, inline, etc., depending on the element */
+  }
+
+  @page {
+    size: A4;
+    margin: 20mm;
+  }
+}
