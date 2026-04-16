@@ -1,128 +1,137 @@
-🚀 Smart Campus Card System (NFC-Based)
+# 🚀 Smart Campus Card System (NFC-Based)
 
-A full-stack NFC-based cashless payment system designed for campus environments to enable fast, secure, and contactless transactions without relying on smartphones or internet connectivity.
+A full-stack **NFC-based cashless payment system** designed for campus environments to enable fast, secure, and contactless transactions without relying on smartphones or internet connectivity.
 
-📌 Project Overview
+---
 
-The Smart Campus Card System replaces traditional cash payments in college campuses with a prepaid digital wallet linked to NFC-enabled student ID cards.
+## 📌 Project Overview
+
+The Smart Campus Card System replaces traditional cash payments in college campuses with a **prepaid digital wallet linked to NFC-enabled student ID cards**.
 
 Users can simply tap their card to complete transactions instantly.
 
-💡 Built for:
+---
 
-College canteens 🍔
-Campus stores 🏪
-Future expansion (library, hostel, transport)
-🖥️ System Screens (UI Preview)
-🏠 Landing Page
-Portal selection (Student / Vendor / Admin)
-Clean UI with role-based navigation
-🛒 Vendor POS System
-Product inventory
-Add to cart
-Real-time billing
-NFC scan for payment
-💳 NFC Authentication
-Tap student ID to authenticate
-Secure wallet deduction
-🎓 Student Dashboard
-Wallet balance 💰
-Recharge option
-Transaction history (planned)
-⚙️ Tech Stack
-🔹 Frontend
-React.js (PWA)
-HTML, CSS, JavaScript
-Responsive UI
-🔹 Backend
-Node.js / Python (API services)
-RESTful APIs
-🔹 Database
-MySQL (primary DB)
-Firebase (real-time sync)
-🔹 Hardware
-NFC Reader
-NFC Smart Cards
-🔹 Authentication
-JWT-based authentication
-🔑 Key Features
+## 💡 Built For
 
-✅ NFC-based contactless payments
-✅ Digital wallet system
-✅ Role-based access (Student / Vendor / Admin)
-✅ Real-time transaction processing
-✅ Offline-capable architecture (future-ready)
-✅ Secure authentication & authorization
-✅ Admin analytics dashboard
-✅ Scalable system design
+- 🍔 College canteens  
+- 🏪 Campus stores  
+- 🚀 Future expansion (library, hostel, transport)  
 
-🔄 System Workflow
-Vendor adds items to cart
-Clicks Scan Student ID
-Student taps NFC card
-System:
-Authenticates user
-Checks balance
-Deducts amount
-Stores transaction
-Payment success displayed instantly
-🔐 Security Features
-JWT Authentication
-Role-Based Access Control
-Secure wallet transactions
-Duplicate scan prevention
-HTTPS / Encryption support
-📊 Performance Highlights
-Parameter	Result
-Transaction Speed	< 2 seconds
-Accuracy	100%
-Error Rate	Negligible
-System Availability	High
-⚠️ Known Limitation
+---
 
-🚫 Web browsers may not support NFC (WebNFC issue)
+## 🖥️ System Screens (UI Preview)
 
-👉 Solution:
+- 🏠 **Landing Page** – Portal selection (Student / Vendor / Admin)  
+- 🛒 **Vendor POS System** – Product inventory, add to cart, real-time billing  
+- 📡 **NFC Authentication** – Tap student ID to authenticate  
+- 🎓 **Student Dashboard** – Wallet balance, recharge option, transaction history  
 
-Use Android Chrome with NFC enabled
-Or integrate hardware NFC reader via backend
-🧠 Future Enhancements
-📱 Mobile App (Android/iOS)
-💳 UPI / Payment Gateway Integration
-🔐 Biometric Authentication
-📊 AI-based spending analytics
-☁️ Cloud deployment (AWS/GCP)
-🏫 Multi-service integration (library, hostel, attendance)
-🛠️ Installation & Setup
-# Clone repository
-git clone https://github.com/ravikumar8709/SMART-CAMPUS-CART.git
+---
 
-# Frontend
-cd frontend
-npm install
-npm start
+## ⚙️ Tech Stack
 
-# Backend
-cd backend
-npm install
-npm run dev
-📁 Project Structure
-smart-campus-card/
-│
-├── frontend/        # React UI
-├── backend/         # API + server
-├── database/        # Schema & queries
-├── assets/          # Screenshots
-└── README.md
-👨‍💻 Author
+### 🔹 Frontend
+- React.js (PWA)  
+- HTML, CSS, JavaScript  
+- Responsive UI  
 
-Ravi Kumar
-🎓 B.Tech CSE
-💡 Passionate about AI, Full Stack & Smart Systems
+### 🔹 Backend
+- Node.js / Python (API services)  
+- RESTful APIs  
 
-⭐ Final Note
+### 🔹 Database
+- MySQL (Primary DB)  
+- Firebase (Real-time sync)  
 
-This project demonstrates how NFC + Web + Backend Systems can be combined to build a real-world scalable smart campus solution.
+### 🔹 Hardware
+- NFC Reader  
+- NFC Smart Cards  
+
+### 🔹 Authentication
+- JWT-based authentication  
+
+---
+
+## 🔑 Key Features
+
+- ✅ NFC-based contactless payments  
+- ✅ Digital wallet system  
+- ✅ Role-based access (Student / Vendor / Admin)  
+- ✅ Real-time transaction processing  
+- ✅ Offline-capable architecture (future-ready)  
+- ✅ Secure authentication & authorization  
+- ✅ Admin analytics dashboard  
+- ✅ Scalable system design  
+
+---
+
+## 🔄 System Workflow
+
+1. Vendor adds items to cart  
+2. Clicks **Scan Student ID**  
+3. Student taps NFC card  
+4. System:
+   - Authenticates user  
+   - Checks balance  
+   - Deducts amount  
+   - Stores transaction  
+5. Payment success displayed instantly  
+
+---
+
+## 🔐 Security Features
+
+- 🔒 JWT Authentication  
+- 🔒 Role-Based Access Control  
+- 🔒 Secure wallet transactions  
+- 🔒 Duplicate scan prevention  
+- 🔒 HTTPS / Encryption support  
+
+---
+
+## 📊 Performance Highlights
+
+| Parameter | Result |
+|----------|--------|
+| Transaction Speed | < 2 seconds |
+| Accuracy | 100% |
+| Error Rate | Negligible |
+| System Availability | High |
+
+---
+
+## ⚠️ Known Limitation
+
+- 🚫 Web browsers may not support NFC (WebNFC limitation)
+
+👉 Suggested Fix:
+- Use **Android Chrome with NFC enabled**
+- Or integrate **hardware NFC reader via backend**
+
+---
+
+## 🚀 Future Enhancements
+
+- 📱 Mobile App (Android/iOS)  
+- 💳 UPI / Payment Gateway Integration  
+- 🔐 Biometric Authentication  
+- 📊 AI-based analytics  
+- ☁️ Cloud deployment  
+- 🏫 Multi-service integration  
+
+---
+
+## 👨‍💻 Author
+
+**Ravi Kumar**  
+B.Tech CSE  
+
+---
+
+## ⭐ Final Note
+
+This project demonstrates how **NFC + Full Stack Development** can be combined to build a **real-world scalable smart campus solution**.
 
 ## 📸 Screenshots
 ![Homepage(./assets/app.png)
