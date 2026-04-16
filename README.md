@@ -95,7 +95,7 @@ Or integrate hardware NFC reader via backend
 🏫 Multi-service integration (library, hostel, attendance)
 🛠️ Installation & Setup
 # Clone repository
-git clone https://github.com/your-username/smart-campus-card.git
+git clone https://github.com/ravikumar8709/SMART-CAMPUS-CART.git
 
 # Frontend
 cd frontend
